@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<title>ระบบเซนเซอร์ดูแลสวน</title>
+
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+<script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-database.js"></script>
+
+<style>
+body {
+  font-family: Tahoma;
+  background: #e8f5e9;
+}
+.container {
+  max-width: 420px;
+  margin: auto;
+  background: white;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0 0 10px #aaa;
+}
+h1 {
+  text-align: center;
+  color: #2e7d32;
+}
+.card {
+  background: #f1f8e9;
+  padding: 10px;
+  border-radius: 8px;
+  margin-bottom: 10px;
+}
+button {
+  width: 100%;
+  padding: 10px;
+  margin-top: 6px;
+  font-size: 16px;
+  border-radius: 6px;
+  border: none;
+}
+.auto { background: #4caf50; color: white; }
+.on { background: #f44336; color: white; }
+.off { background: #9e9e9e; color: white; }
+</style>
+</head>
+
+<body>
+<div class="container">
+<h1>🌱 ระบบเซนเซอร์ดูแลสวน</h1>
+
+<div class="card">🌡 อุณหภูมิ: <span id="temp">-</span> °C</div>
+<div class="card">💧 ความชื้นดิน: <span id="soil">-</span> %</div>
+<div class="card">📏 ระยะน้ำ: <span id="dist">-</span> cm</div>
+<div class="card">🔔 บัสเซอร์: <span id="status">-</span></div>
+
+<button class="auto" onclick="setAuto()">โหมดอัตโนมัติ</button>
+<button class="on" onclick="setManual(1)">เปิดบัสเซอร์</button>
+<button class="off" onclick="setManual(0)">ปิดบัสเซอร์</button>
+</div>
+
+<script>
+var firebaseConfig = {
+  apiKey: "AIzaSyCKjRcHVMlXh7cU0Pc3IdusyvNHQVlv888",
+  databaseURL: "https://pitchapa1-default-rtdb.firebaseio.com/"
+};
+firebase.initializeApp(firebaseConfig);
+var db = firebase.database();
+
+db.ref("sensor").on("value", s => {
+  temp.innerText = s.val().temperature;
+  soil.innerText = s.val().soil;
+  dist.innerText = s.val().distance;
+});
+
+db.ref("buzzer").on("value", b => {
+  status.innerText = b.val().mode == "auto"
+    ? "อัตโนมัติ"
+    : (b.val().value ? "เปิด" : "ปิด");
+});
+
+function setAuto() {
+  db.ref("buzzer").set({ mode: "auto", value: 0 });
+}
+function setManual(v) {
+  db.ref("buzzer").set({ mode: "manual", value: v });
+}
+</script>
+</body>
+</html>
